@@ -44,20 +44,20 @@ class UserSignUpView(APIView):
 class UserSignInView(APIView):
     def post(self,request):
         data = request.data
-        
+
         email = data["email"]
         password = data["password"]
 
         try:
             user = User.objects.get(email=email)
         except:
-            return Response({"detail":"This email does not exists!"})
+            return Response({"message":"This email does not exists!"})
 
         password_check = check_password(password, user.password)
         if password_check == True:
             refresh = RefreshToken.for_user(user)
         else:
-            return Response({"status":False, "detail":"Incorrect password!", "message": "error"})
+            return Response({"message":"Incorrect password!"})
 
         return Response({"status":True,
                         "refresh":str(refresh),
