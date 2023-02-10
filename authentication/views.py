@@ -1,5 +1,7 @@
 from django.shortcuts import render
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
+from django.contrib.auth.hashers import check_password
 from rest_framework.response import Response
 from authentication.models import User
 
@@ -30,7 +32,34 @@ class UserSignUpView(APIView):
         )
         user.set_password(password)
         user.save()
+        refresh = RefreshToken.for_user(user)
 
-        return Response({"message":"User Created!"})
+        return Response({"status":True,
+                        "refresh":str(refresh),
+                        "access":str(refresh.access_token),
+                        "message": "success"})
+
+
 
 class UserSignInView(APIView):
+    def post(self,request):
+        data = request.data
+        
+        email = data["email"]
+        password = data["password"]
+
+        try:
+            user = User.objects.get(email=email)
+        except:
+            return Response({"detail":"This email does not exists!"})
+
+        password_check = check_password(password, user.password)
+        if password_check == True:
+            refresh = RefreshToken.for_user(user)
+        else:
+            return Response({"status":False, "detail":"Incorrect password!", "message": "error"})
+
+        return Response({"status":True,
+                        "refresh":str(refresh),
+                        "access":str(refresh.access_token),
+                        "message": "success"})
