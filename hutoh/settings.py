@@ -7,10 +7,9 @@ SECRET_KEY = 'django-insecure-9+v_ry*cju!@g=_d=i58fu($w+c1opx6@_refji9-n(e!cv$ut
 DEBUG = True
 ALLOWED_HOSTS = []
 
-
-# Application definition
-
 INSTALLED_APPS = [
+    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -24,6 +23,7 @@ INSTALLED_APPS = [
     'address',
     'merchant',
     'driver',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -55,11 +55,17 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hutoh.wsgi.application'
+# WSGI_APPLICATION = 'hutoh.wsgi.application'
+ASGI_APPLICATION = 'hutoh.asgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 DATABASES = {
     'default': {
@@ -71,10 +77,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -109,6 +111,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "authentication.User"
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=43200),
