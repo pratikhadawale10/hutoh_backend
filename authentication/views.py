@@ -17,10 +17,10 @@ class UserSignUpView(APIView):
         #check if username already exists
         if User.objects.filter(username=username).exists():
             return Response({"message":"Username Already Exists"})
-        #check if phone
+        #check if phone already exists
         if User.objects.filter(phone=phone).exists():
             return Response({"message":"Phone Already Exists"})
-        #check if email
+        #check if email already exists
         if User.objects.filter(email=email).exists():
             return Response({"message":"Email Already Exists"})
 
