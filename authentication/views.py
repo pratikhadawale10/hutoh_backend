@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from django.contrib.auth.hashers import check_password
 from rest_framework.response import Response
 from authentication.models import User
+from authentication.serializers import GetUserSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class UserSignUpView(APIView):
     def post(self,request):
@@ -13,7 +15,7 @@ class UserSignUpView(APIView):
         email = data["email"]
         phone = data["phone"]
         password = data["password"]
-        profile_pic = data.get("profile_pic",None)
+        profile_pic = request.FILES['profile_pic']
 
         #check if username already exists
         if User.objects.filter(username=username).exists():
@@ -65,3 +67,16 @@ class UserSignInView(APIView):
                         "refresh":str(refresh),
                         "access":str(refresh.access_token),
                         "message": "success"})
+    
+
+
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        queryset = User.objects.get(id=request.user.id)
+        serializer = GetUserSerializer(queryset)
+        
+        return Response({"status":True,
+                        "message": "success",
+                        "data":serializer.data})
