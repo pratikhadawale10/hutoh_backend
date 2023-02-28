@@ -15,7 +15,7 @@ class Merchant(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     
-    document_status_choices=(
+    status_choices=(
         ("Pending","Pending"),
         ("Not Uploaded","Not Uploaded"),
         ("Verified","Verified"),
@@ -44,10 +44,10 @@ class Merchant(models.Model):
     energy_bill = models.FileField(upload_to=partial(get_upload_path, doctype="energy_bill"),null=True,blank=True)
     national_id_card = models.FileField(upload_to=partial(get_upload_path, doctype="national_id_card"),null=True,blank=True)
 
-    store_lease_document = models.CharField(max_length=150,choices=document_status_choices,default="Pending")
-    rent_bill = models.CharField(max_length=150,choices=document_status_choices,default="Pending")
-    energy_bill = models.CharField(max_length=150,choices=document_status_choices,default="Pending")
-    national_id_card = models.CharField(max_length=150,choices=document_status_choices,default="Pending")
+    store_lease_document_status = models.CharField(max_length=150,choices=status_choices,default="Pending")
+    rent_bill_status = models.CharField(max_length=150,choices=status_choices,default="Pending")
+    energy_bill_status = models.CharField(max_length=150,choices=status_choices,default="Pending")
+    national_id_card_status = models.CharField(max_length=150,choices=status_choices,default="Pending")
 
 
     # Onboarding3
@@ -63,5 +63,6 @@ class Merchant(models.Model):
     bvn = models.CharField(max_length=150,null=True,blank=True)
     routing_number = models.CharField(max_length=150,null=True,blank=True)
 
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)

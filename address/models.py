@@ -8,24 +8,40 @@ class Address(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     hutoh_id = models.CharField(max_length=150,unique=True,null=True,blank=True)
     address_id = models.CharField(max_length=150,unique=True,null=True,blank=True)
-    address_line_1 = models.CharField(max_length=150)
-    address_line_2 = models.CharField(max_length=150)
-    street_name = models.CharField(max_length=150)
-    city = models.CharField(max_length=150)
-    state = models.CharField(max_length=150)
-    country = models.CharField(max_length=150)
-    zip = models.CharField(max_length=150)
+
+
     location_type_choices=(
         ("Home","Home"),
-        ("Work Place","Work Place"),
+        ("Work place","Work place"),
         ("Business","Business"),
-        ("Other Location","Other Location"),
+        ("Other location","Other location"),
+    )
+    house_type_choices=(
+        ("Storey building","Storey building"),
+        ("Bungalow house","Bungalow house"),
+        ("Duplex with one family","Duplex with one family"),
+        ("Multi family Apartment","Multi family Apartment"),
     )
     location_type = models.CharField(max_length=150,choices=location_type_choices)
-    house_type = models.CharField(max_length=150)
+    house_type = models.CharField(max_length=150,choices=house_type_choices)
     floor = models.CharField(max_length=150)
     latitude = models.CharField(max_length=150)
     longitude = models.CharField(max_length=150)
+
+    
+    address_line_1 = models.CharField(max_length=150)
+    address_line_2 = models.CharField(max_length=150)
+    house_number = models.CharField(max_length=150)
+    street_name = models.CharField(max_length=150)
+    phone_number = models.CharField(max_length=150)
+    fax_number = models.CharField(max_length=150)
+    email = models.EmailField()
+    city = models.CharField(max_length=150)
+    state = models.CharField(max_length=150)
+    zip = models.CharField(max_length=150)
+    country = models.CharField(max_length=150)
+    
+
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)

@@ -12,4 +12,4 @@ class GetAddressSerializer(serializers.ModelSerializer):
 class CreateAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ("address_line_1","address_line_2","street_name","city","state","country","zip","location_type","house_type","floor","latitude","longitude",)
+        fields = ("location_type","house_type","floor","latitude","longitude","address_line_1","address_line_2","house_number","street_name","phone_number","fax_number","email","city","state","zip","country",)
