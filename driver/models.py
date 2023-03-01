@@ -89,6 +89,7 @@ class Driver(models.Model):
     drive_time = models.CharField(max_length=150,choices=drive_time_choices)
     other_app = models.CharField(max_length=150,choices=other_app_choices)
     
-
+    
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)

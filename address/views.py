@@ -11,7 +11,7 @@ class AddressCreateView(APIView):
     def get(self,request):
         user = request.user
         queryset = Address.objects.filter(user=user)
-        serializer = GetAddressSerializer(queryset,many=True)
+        serializer = GetAddressSerializer(queryset,many=True,context={'request': request})
         return Response({"data":serializer.data})
 
     #create a new address
@@ -32,6 +32,7 @@ class AddressCreateView(APIView):
                 address_line_1 = data.get("address_line_1",None),
                 address_line_2 = data.get("address_line_2",None),
                 house_number = data.get("house_number",None),
+                address_document = request.FILES['address_document'],
                 street_name = data.get("street_name",None),
                 phone_number = data.get("phone_number",None),
                 fax_number = data.get("fax_number",None),
@@ -43,7 +44,7 @@ class AddressCreateView(APIView):
             )
             queryset.save()
 
-            serializer = GetAddressSerializer(queryset)
+            serializer = GetAddressSerializer(queryset,context={'request': request})
             return Response({"data":serializer.data})
         else:
             return Response(serializer.errors,status=400)
@@ -56,5 +57,5 @@ class AddressByIDView(APIView):
     def get(self,request,id):
         user = request.user
         queryset = Address.objects.get(id=id)
-        serializer = GetAddressSerializer(queryset)
+        serializer = GetAddressSerializer(queryset,context={'request': request})
         return Response({"data":serializer.data})

@@ -1,7 +1,13 @@
 from django.db import models
-import uuid
-import random
+import uuid, os, random
 from authentication.models import User
+from functools import partial
+
+def get_upload_path(instance, filename, doctype):
+    ext = filename.split('.')[-1]
+    filename = f".{ext}"
+    prefix = f"{doctype}"  # Add custom prefix
+    return os.path.join("static", "address", str(instance.user.id),str(instance.hutoh_id),prefix + filename)
 
 class Address(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
@@ -33,6 +39,7 @@ class Address(models.Model):
     address_line_2 = models.CharField(max_length=150)
     house_number = models.CharField(max_length=150)
     street_name = models.CharField(max_length=150)
+    address_document = models.FileField(upload_to=partial(get_upload_path, doctype="address_document"),null=True,blank=True)
     phone_number = models.CharField(max_length=150)
     fax_number = models.CharField(max_length=150)
     email = models.EmailField()
