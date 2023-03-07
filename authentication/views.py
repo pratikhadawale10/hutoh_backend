@@ -20,7 +20,7 @@ class UserSignUpView(APIView):
         phone = data["phone"]
         password = data["password"]
         # profile_pic = request.FILES['profile_pic']
-        profile_pic = request.FILES.get('profile_pic')
+        # profile_pic = request.FILES.get('profile_pic')
 
         #check if username already exists
         if User.objects.filter(username=username).exists():
@@ -36,7 +36,7 @@ class UserSignUpView(APIView):
             username = username,
             email = email,
             phone = phone,
-            profile_pic = profile_pic,
+            # profile_pic = profile_pic,
         )
         user.set_password(password)
         user.save()
