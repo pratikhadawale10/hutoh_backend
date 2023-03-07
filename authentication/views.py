@@ -19,7 +19,8 @@ class UserSignUpView(APIView):
         email = data["email"]
         phone = data["phone"]
         password = data["password"]
-        profile_pic = request.FILES['profile_pic']
+        # profile_pic = request.FILES['profile_pic']
+        profile_pic = request.FILES.get('profile_pic')
 
         #check if username already exists
         if User.objects.filter(username=username).exists():
