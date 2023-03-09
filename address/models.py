@@ -12,8 +12,8 @@ def get_upload_path(instance, filename, doctype):
 class Address(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    hutoh_id = models.CharField(max_length=150,unique=True,null=True,blank=True)
-    address_id = models.CharField(max_length=150,unique=True,null=True,blank=True)
+    hutoh_id = models.CharField(max_length=150,unique=True)
+    address_id = models.CharField(max_length=150,unique=True)
 
 
     location_type_choices=(
