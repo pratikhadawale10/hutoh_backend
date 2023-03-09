@@ -19,6 +19,12 @@ class AddressCreateView(APIView):
         user = request.user
         data = request.data
         serializer = CreateAddressSerializer(data=data)
+
+        try:
+            address_document = request.FILES['address_document']
+        except:
+            address_document = None
+
         if serializer.is_valid():
             queryset = Address.objects.create(
                 user = user,
@@ -26,13 +32,13 @@ class AddressCreateView(APIView):
                 location_type = data.get("location_type",None),
                 house_type = data.get("house_type",None),
                 floor = data.get("floor",None),
-                latitude = data.get("latitude",None),
-                longitude = data.get("longitude",None),
+                # latitude = data.get("latitude",None),
+                # longitude = data.get("longitude",None),
 
                 address_line_1 = data.get("address_line_1",None),
                 address_line_2 = data.get("address_line_2",None),
                 house_number = data.get("house_number",None),
-                address_document = request.FILES['address_document'],
+                address_document = address_document,
                 street_name = data.get("street_name",None),
                 phone_number = data.get("phone_number",None),
                 fax_number = data.get("fax_number",None),
