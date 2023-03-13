@@ -83,17 +83,17 @@ class UserProfileView(APIView):
 
         try:
             merchant_queryset = Merchant.objects.get(user__id=queryset.id)
-            if merchant_queryset.is_verified == True:
-                merchant_serializer = GetMerchantsSerializer(merchant_queryset,context={'request': request})
-                merchant = merchant_serializer.data
+            merchant_serializer = GetMerchantsSerializer(merchant_queryset,context={'request': request})
+            merchant = merchant_serializer.data
+
+            
         except:
             merchant = None
 
         try:
             driver_queryset = Driver.objects.get(user__id=queryset.id)
-            if driver_queryset.is_verified == True:
-                driver_serializer = GetDriversSerializer(driver_queryset,context={'request': request})
-                driver = driver_serializer.data
+            driver_serializer = GetDriversSerializer(driver_queryset,context={'request': request})
+            driver = driver_serializer.data
         except:
             driver = None
         

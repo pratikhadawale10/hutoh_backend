@@ -3,6 +3,7 @@ import uuid, os
 from django.core.validators import MinValueValidator, MaxValueValidator
 from functools import partial
 from authentication.models import User
+import uuid, os, random
 
 def get_upload_path(instance, filename, doctype):
     ext = filename.split('.')[-1]
@@ -21,14 +22,18 @@ class Merchant(models.Model):
         ("Verified","Verified"),
     )
     store_category_choices=(
-        ("1","1"),
-        ("2","2"),
-        ("3","3"),
+        ("Fashion","Fashion"),
+        ("Spare Parts","Spare Parts"),
+        ("Mobile Phones","Mobile Phones"),
+        ("Grocery","Grocery"),
+        ("Computer Store","Computer Store"),
     )
     store_subcategory_choices=(
-        ("1","1"),
-        ("2","2"),
-        ("3","3"),
+        ("Tshirts","Tshirts"),
+        ("Wollen Sweater","Wollen Sweater"),
+        ("Blazers","Blazers"),
+        ("Socks","Socks"),
+        ("Jeans","Jeans"),
     )
 
     # Onboarding1
@@ -64,5 +69,59 @@ class Merchant(models.Model):
     routing_number = models.CharField(max_length=150,null=True,blank=True)
 
     is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+
+
+class ProductSizeAndQuantity(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    name = models.CharField(max_length=150,null=True,blank=True)
+    quantity = models.CharField(max_length=150,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+
+
+class Product(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    merchant = models.ForeignKey(Merchant,on_delete=models.CASCADE)
+
+    product_category_choices=(
+        ("Shirt","Shirt"),
+        ("Sweat Shirt","Sweat Shirt"),
+    )
+    product_type = models.CharField(max_length=150,choices=product_category_choices,null=True,blank=True)
+
+    name = models.CharField(max_length=150,null=True,blank=True)
+    price = models.CharField(max_length=150,null=True,blank=True)
+    stock = models.CharField(max_length=150,null=True,blank=True)
+    size_and_quantity = models.ManyToManyField(ProductSizeAndQuantity)
+
+    product_color_choices = (
+    ("Red", "Red"),
+    ("Blue", "Blue"),
+    ("Green", "Green"),
+    ("Yellow", "Yellow"),
+    ("Purple", "Purple"),
+    ("Orange", "Orange"),
+    ("Pink", "Pink"),
+    ("Black", "Black"),
+    ("White", "White"),
+    ("Gray", "Gray"),
+    ("Brown", "Brown"),
+    ("Beige", "Beige"),
+    ("Navy", "Navy"),
+    ("Teal", "Teal"),
+    ("Magenta", "Magenta"),
+    ("Turquoise", "Turquoise"),
+    ("Olive", "Olive"),
+    ("Lime", "Lime"),
+    ("Gold", "Gold"),
+    ("Silver", "Silver"),
+    ("Bronze", "Bronze"),
+    )
+    color = models.CharField(max_length=150,choices=product_color_choices,null=True,blank=True)
+
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)

@@ -7,13 +7,17 @@ from rest_framework.response import Response
 
 class MerchantCreateView(APIView):
     permission_classes = [IsAuthenticated]
-    # give details of his own merchant details
+    # give his own merchant details
     def get(self,request):
-        user = request.user
-        queryset = Merchant.objects.filter(user=user)
-        serializer = GetMerchantsSerializer(queryset,many=True,context={'request': request})
-        return Response({"data":serializer.data})
+        try:
+            user = request.user
+            queryset = Merchant.objects.get(user=user)
+            serializer = GetMerchantsSerializer(queryset,context={'request': request})
+            return Response({"data":serializer.data})
+        except:
+            return Response({"message":"Merchant Does Not Exists"})
 
+        
     #create a new merchant
     def post(self,request):
         user = request.user
@@ -63,3 +67,13 @@ class MerchantByIDView(APIView):
         queryset = Merchant.objects.get(id=id)
         serializer = GetMerchantsSerializer(queryset,context={'request': request})
         return Response({"data":serializer.data})
+
+
+class AllMerchantProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    # get all merchant details
+    def get(self,request):
+        queryset = Merchant.objects.all()
+        serializer = GetMerchantsSerializer(queryset,many=True,context={'request': request})
+        return Response({"data":serializer.data})
+    
