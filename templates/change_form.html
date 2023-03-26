@@ -1,0 +1,7 @@
+{% if field.name == 'images' %}
+    <ul>
+    {% for image in widget.value.all %}
+        <li><img src="{{ image.image.url }}" height="100px"></li>
+    {% endfor %}
+    </ul>
+{% endif %}

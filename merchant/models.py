@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from functools import partial
 from authentication.models import User
 import uuid, os, random
+from django.utils.html import format_html
 
 def get_upload_path(instance, filename, doctype):
     ext = filename.split('.')[-1]
@@ -76,26 +77,42 @@ class Merchant(models.Model):
 
 class ProductSizeAndQuantity(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
-    name = models.CharField(max_length=150,null=True,blank=True)
+    size = models.CharField(max_length=150,null=True,blank=True)
     quantity = models.CharField(max_length=150,null=True,blank=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
 
 
+class ProductImage(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    image = models.ImageField(upload_to='static/product_images')
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    def thumbnail(self):
+        return format_html('<img src="{}" width="50" height="50" />'.format(self.image.url))
+
+    thumbnail.short_description = 'Image'
+
+    def __str__(self):
+        return self.image.url
+
+
 class Product(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     merchant = models.ForeignKey(Merchant,on_delete=models.CASCADE)
-
+    images = models.ManyToManyField(ProductImage)
     product_category_choices=(
         ("Shirt","Shirt"),
         ("Sweat Shirt","Sweat Shirt"),
     )
     product_type = models.CharField(max_length=150,choices=product_category_choices,null=True,blank=True)
-
+    
     name = models.CharField(max_length=150,null=True,blank=True)
-    price = models.CharField(max_length=150,null=True,blank=True)
-    stock = models.CharField(max_length=150,null=True,blank=True)
+    description = models.CharField(max_length=150,null=True,blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    stock = models.IntegerField(validators=[MinValueValidator(0)])
     size_and_quantity = models.ManyToManyField(ProductSizeAndQuantity)
 
     product_color_choices = (
@@ -125,3 +142,10 @@ class Product(models.Model):
 
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    def get_images_urls(self):
+        return "\n".join([image.image.url for image in self.images.all()])
+
+
+
+    

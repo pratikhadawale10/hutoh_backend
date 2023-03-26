@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from merchant.models import Merchant
-from merchant.serializers import GetMerchantsSerializer, CreateMerchantsSerializer
+from merchant.models import Merchant, Product, ProductSizeAndQuantity, ProductImage
+from merchant.serializers import GetMerchantsSerializer, CreateMerchantsSerializer, GetProductsSerializer, CreateProductsSerializer
 from rest_framework.response import Response
-
+import json
+import ast
 class MerchantCreateView(APIView):
     permission_classes = [IsAuthenticated]
     # give his own merchant details
@@ -77,3 +78,125 @@ class AllMerchantProfileView(APIView):
         serializer = GetMerchantsSerializer(queryset,many=True,context={'request': request})
         return Response({"data":serializer.data})
     
+
+class ProductCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    # get all products by user token
+    def get(self,request):
+        try:
+            user = request.user
+            queryset = Product.objects.get(user=user)
+            serializer = GetProductsSerializer(queryset,context={'request': request},many=True)
+            return Response({"data":serializer.data})
+        except:
+            return Response({"message":"Merchant Does Not Exists"})
+
+
+    #create a new product
+    def post(self, request, format=None):
+        user = request.user
+        data = request.data
+        serializer = CreateProductsSerializer(data=data)
+        if serializer.is_valid():
+            try:
+                merchant = Merchant.objects.get(user__id=user.id)
+                if merchant.is_verified == False:
+                    return Response({"message":"Merchant is not verified"})
+            except:
+                return Response({"message":"Merchant Does Not Exists"})
+
+
+            queryset = Product.objects.create(
+                merchant = merchant,
+                product_type =data.get("product_type",None),
+                name =data.get("name",None),
+                description =data.get("description",None),
+                price =data.get("price",None),
+                color =data.get("color",None),
+                stock =data.get("stock",None),
+            )
+            images = [ProductImage.objects.create(image=image) for image in request.FILES.getlist('images')]
+            queryset.images.set(images)
+            queryset.save()
+
+            for size_and_quantity in  ast.literal_eval(json.loads(json.dumps(data.get("size_and_quantity",None)))):
+                product_size_and_quantity = ProductSizeAndQuantity.objects.get_or_create(
+                    size = size_and_quantity["size"],
+                    quantity = size_and_quantity["quantity"],
+                )
+                queryset.size_and_quantity.add(product_size_and_quantity[0])
+                queryset.save()
+
+
+            serializer = GetProductsSerializer(queryset,context={'request': request})
+            return Response({"data":serializer.data})
+        else:
+            return Response(serializer.errors,status=400)
+
+
+
+    
+        
+
+
+class ProductEditView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request,id):
+        user = request.user
+
+        try:
+            product = Product.objects.get(id=id)
+        except Product.DoesNotExist:
+            return Response({"message": "Product not found"}, status=404)
+        
+        if product.merchant.user.id != user.id:
+            return Response({"message": "Unauthorized request"}, status=401)
+        
+        serializer = GetProductsSerializer(product,context={'request': request})
+        return Response({"data":serializer.data})
+
+    def put(self, request, id):
+        user = request.user
+        data = request.data
+        try:
+            product = Product.objects.get(id=id)
+        except Product.DoesNotExist:
+            return Response({"message": "Product not found"}, status=404)
+        
+        if product.merchant.user.id != user.id:
+            return Response({"message": "Unauthorized request"}, status=401)
+
+        serializer = CreateProductsSerializer(product, data=data, partial=True)
+        
+        if serializer.is_valid():
+            try:
+                merchant = Merchant.objects.get(user__id=user.id)
+                if merchant.is_verified == False:
+                    return Response({"message":"Merchant is not verified"})
+            except:
+                return Response({"message":"Merchant does not exist"})
+
+            product.product_type = data.get("product_type", product.product_type)
+            product.name = data.get("name", product.name)
+            product.description = data.get("description", product.description)
+            product.price = data.get("price", product.price)
+            product.color = data.get("color", product.color)
+            product.stock = data.get("stock", product.stock)
+
+            images = [ProductImage.objects.create(image=image) for image in request.FILES.getlist('images')]
+            product.images.set(images)
+
+            product.size_and_quantity.clear()
+            for size_and_quantity in  ast.literal_eval(json.loads(json.dumps(data.get("size_and_quantity",None)))):
+                product_size_and_quantity = ProductSizeAndQuantity.objects.get_or_create(
+                    size = size_and_quantity["size"],
+                    quantity = size_and_quantity["quantity"],
+                )
+                product.size_and_quantity.add(product_size_and_quantity[0])
+            product.save()
+
+            serializer = GetProductsSerializer(product,context={'request': request})
+            return Response({"data":serializer.data})
+        else:
+            return Response(serializer.errors,status=400)
