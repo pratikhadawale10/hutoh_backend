@@ -12,7 +12,6 @@ def get_upload_path(instance, filename, doctype):
 class Address(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    hutoh_id = models.CharField(max_length=150,unique=True)
     address_id = models.CharField(max_length=150,unique=True)
 
 
@@ -54,8 +53,6 @@ class Address(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        if not self.hutoh_id:
-            self.hutoh_id = "DW" + str(random.randint(100000000000000, 999999999999999))
         if not self.address_id:
             if self.location_type=="Home":
                 self.address_id = "H" + str(random.randint(1000000, 9999999))
