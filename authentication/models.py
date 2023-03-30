@@ -7,7 +7,7 @@ class User(AbstractUser):
     profile_pic = models.FileField(upload_to='static/profile/profile_pics',null=True,blank=True)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20,unique=True)
-    hutoh_id = models.CharField(max_length=150,null=True,blank=True)
+    hutoh_id = models.CharField(max_length=150,unique=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
