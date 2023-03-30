@@ -13,5 +13,5 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         if not self.hutoh_id:
-                self.hutoh_id = "DW" + str(random.randint(100000000000000, 999999999999999))
+            self.hutoh_id = "DW" + str(random.randint(100000000000000, 999999999999999))
         super().save(*args, **kwargs)

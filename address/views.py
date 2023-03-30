@@ -66,7 +66,4 @@ class AddressByIDView(APIView):
         queryset = Address.objects.get(id=id)
         serializer = GetAddressSerializer(queryset,context={'request': request})
 
-        response = serializer.data
-        response["hutoh_id"] = hutoh_id
-
-        return Response({"data":response})
+        return Response({"data":serializer.data})

@@ -4,9 +4,14 @@ from address.models import Address
 
 class GetAddressSerializer(serializers.ModelSerializer):
     user = GetUserSerializer()
+    hutoh_id = serializers.SerializerMethodField()
+    
     class Meta:
         model = Address
         fields = "__all__"
+
+    def get_hutoh_id(self, obj):
+        return obj.user.hutoh_id
 
 
 class CreateAddressSerializer(serializers.ModelSerializer):
