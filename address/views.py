@@ -55,7 +55,7 @@ class AddressCreateView(APIView):
         else:
             return Response(serializer.errors,status=400)
 
-
+    
 
 class AddressByIDView(APIView):
     permission_classes = [IsAuthenticated]
