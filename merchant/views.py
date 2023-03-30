@@ -91,7 +91,7 @@ class ProductCreateView(APIView):
         except:
             return Response({"message":"Merchant Does Not Exists"})
         
-        queryset = Product.objects.filter(merchant=merchant)
+        queryset = Product.objects.search_related('merchant').filter(merchant=merchant)
         serializer = GetProductsSerializer(queryset,context={'request': request},many=True)
         return Response({"data":serializer.data})
 
