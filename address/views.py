@@ -55,14 +55,13 @@ class AddressCreateView(APIView):
         else:
             return Response(serializer.errors,status=400)
 
-    
+
 
 class AddressByIDView(APIView):
     permission_classes = [IsAuthenticated]
     # get address details by id
     def get(self,request,id):
         user = request.user
-        hutoh_id = user.hutoh_id
         queryset = Address.objects.get(id=id)
         serializer = GetAddressSerializer(queryset,context={'request': request})
 
