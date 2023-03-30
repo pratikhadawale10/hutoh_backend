@@ -85,7 +85,7 @@ class ProductCreateView(APIView):
     def get(self,request):
         try:
             user = request.user
-            queryset = Product.objects.get(user=user)
+            queryset = Product.objects.get(merchant=user)
             serializer = GetProductsSerializer(queryset,context={'request': request},many=True)
             return Response({"data":serializer.data})
         except:
