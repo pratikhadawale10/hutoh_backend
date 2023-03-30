@@ -5,7 +5,7 @@ urlpatterns = [
     path('', views.MerchantCreateView.as_view()),
     path('<uuid:id>/',views.MerchantByIDView.as_view()),
     path('all/',views.AllMerchantProfileView.as_view()),
-
+    path('profile/',views.MerchantProfileView.as_view()),
     #product apis
     path('product/',views.ProductCreateView.as_view()),
     path('product/<uuid:id>/',views.ProductEditView.as_view()),

@@ -70,6 +70,7 @@ class MerchantByIDView(APIView):
         return Response({"data":serializer.data})
 
 
+
 class AllMerchantProfileView(APIView):
     permission_classes = [IsAuthenticated]
     # get all merchant details
@@ -78,6 +79,31 @@ class AllMerchantProfileView(APIView):
         serializer = GetMerchantsSerializer(queryset,many=True,context={'request': request})
         return Response({"data":serializer.data})
     
+
+
+class MerchantProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    # get all merchant details
+    def get(self,request):
+        user = request.user
+        try:
+            merchant = Merchant.objects.get(user__id=user.id)
+            if merchant.is_verified == False:
+                return Response({"message":"Merchant is not verified"})
+        except:
+            return Response({"message":"Merchant Does Not Exists"})
+        
+        merchant_serializer = GetMerchantsSerializer(merchant,context={'request': request})
+
+        products = Product.objects.select_related('merchant').filter(merchant=merchant)
+        products_serializer = GetProductsSerializer(products,context={'request': request},many=True)
+
+        return Response({"data":{
+            'merchant': merchant_serializer.data,
+            'products': products_serializer.data
+        }})
+
+
 
 class ProductCreateView(APIView):
     permission_classes = [IsAuthenticated]
