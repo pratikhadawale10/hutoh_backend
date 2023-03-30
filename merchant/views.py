@@ -83,13 +83,17 @@ class ProductCreateView(APIView):
     permission_classes = [IsAuthenticated]
     # get all products by user token
     def get(self,request):
+        user = request.user
         try:
-            user = request.user
-            queryset = Product.objects.get(merchant=user)
-            serializer = GetProductsSerializer(queryset,context={'request': request},many=True)
-            return Response({"data":serializer.data})
+            merchant = Merchant.objects.get(user__id=user.id)
+            if merchant.is_verified == False:
+                return Response({"message":"Merchant is not verified"})
         except:
             return Response({"message":"Merchant Does Not Exists"})
+        
+        queryset = Product.objects.get(merchant=merchant)
+        serializer = GetProductsSerializer(queryset,context={'request': request},many=True)
+        return Response({"data":serializer.data})
 
 
     #create a new product
