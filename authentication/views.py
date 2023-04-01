@@ -10,6 +10,8 @@ from merchant.serializers import GetMerchantsSerializer
 from authentication.serializers import GetUserSerializer
 from driver.serializers import GetDriversSerializer
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate, login
+
 
 class UserSignUpView(APIView):
     def post(self,request):
@@ -40,6 +42,12 @@ class UserSignUpView(APIView):
         )
         user.set_password(password)
         user.save()
+
+        # authenticate the user and log them in to update the last_login field
+        user = authenticate(request, email=email, password=password)
+        if user is not None:
+            login(request, user)
+
         refresh = RefreshToken.for_user(user)
 
         return Response({"status":True,
@@ -56,21 +64,16 @@ class UserSignInView(APIView):
         email = data["email"]
         password = data["password"]
 
-        try:
-            user = User.objects.get(email=email)
-        except:
-            return Response({"message":"This email does not exists!"})
-
-        password_check = check_password(password, user.password)
-        if password_check == True:
+        user = authenticate(request, email=email, password=password)
+        if user is not None:
+            login(request, user)
             refresh = RefreshToken.for_user(user)
+            return Response({"status":True,
+                            "refresh":str(refresh),
+                            "access":str(refresh.access_token),
+                            "message": "success"})
         else:
-            return Response({"message":"Incorrect password!"})
-
-        return Response({"status":True,
-                        "refresh":str(refresh),
-                        "access":str(refresh.access_token),
-                        "message": "success"})
+            return Response({"message":"Incorrect email or password!"})
     
 
 

@@ -19,10 +19,15 @@ class GetSizeAndQuantitySerializer(serializers.ModelSerializer):
         model = ProductSizeAndQuantity
         fields = ('size', 'quantity',)
 
+class GetImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = "__all__"
 
 class GetProductsSerializer(serializers.ModelSerializer):
     merchant = GetMerchantsSerializer()
     size_and_quantity = GetSizeAndQuantitySerializer(many=True)
+    images = GetImagesSerializer(many=True)
     class Meta:
         model = Product
         fields = "__all__"
