@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-9+v_ry*cju!@g=_d=i58fu($w+c1opx6@_refji9-n(e!cv$ut
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = ['*']
-
+CORS_ORIGIN_WHITELIST = ['http://localhost:3000','https://hutto-app.vercel.app']
 INSTALLED_APPS = [
     'channels',
     'daphne',
@@ -28,7 +28,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -36,6 +35,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'hutoh.urls'
