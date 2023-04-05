@@ -9,6 +9,7 @@ ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = ['http://127.0.0.1:3000','http://localhost:3000']
 CORS_ORIGIN_WHITELIST = ['http://localhost:3000','https://hutto-app.vercel.app']
 INSTALLED_APPS = [
+    'corsheaders',
     'channels',
     'daphne',
     'django.contrib.admin',
@@ -19,7 +20,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'corsheaders',
     'authentication',
     'address',
     'merchant',
