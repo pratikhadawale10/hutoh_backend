@@ -106,3 +106,43 @@ class UserProfileView(APIView):
                         "data":serializer.data,
                         "merchant":merchant,
                         "driver":driver})
+    
+    
+    def put(self,request):
+        data = request.data
+
+        queryset = User.objects.get(id=request.user.id)
+        profile_pic = request.FILES.get('profile_pic',queryset.profile_pic)
+        first_name = data["first_name"]
+        last_name = data["last_name"]
+
+        queryset.profile_pic = profile_pic
+        queryset.first_name = first_name
+        queryset.last_name = last_name
+        queryset.save()
+
+
+        queryset = User.objects.get(id=request.user.id)
+        serializer = GetUserSerializer(queryset,context={'request': request})
+
+        try:
+            merchant_queryset = Merchant.objects.get(user__id=queryset.id)
+            merchant_serializer = GetMerchantsSerializer(merchant_queryset,context={'request': request})
+            merchant = merchant_serializer.data
+
+            
+        except:
+            merchant = None
+
+        try:
+            driver_queryset = Driver.objects.get(user__id=queryset.id)
+            driver_serializer = GetDriversSerializer(driver_queryset,context={'request': request})
+            driver = driver_serializer.data
+        except:
+            driver = None
+        
+        return Response({"status":True,
+                        "message": "success",
+                        "data":serializer.data,
+                        "merchant":merchant,
+                        "driver":driver})
