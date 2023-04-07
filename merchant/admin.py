@@ -1,5 +1,5 @@
 from django.contrib import admin
-from merchant.models import Merchant, ProductSizeAndQuantity, Product, ProductImage
+from merchant.models import Merchant, ProductSizeAndQuantity, Product, ProductImage, Cart
 from django.utils.html import format_html
 from django.conf import settings
 
@@ -28,3 +28,4 @@ admin.site.register(Merchant)
 admin.site.register(Product)
 admin.site.register(ProductSizeAndQuantity)
 admin.site.register(ProductImage, ProductImageAdmin)
+admin.site.register(Cart)

@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from merchant.models import Merchant, Product, ProductSizeAndQuantity, ProductImage
-from merchant.serializers import GetMerchantsSerializer, CreateMerchantsSerializer, GetProductsSerializer, CreateProductsSerializer
+from merchant.models import Merchant, Product, ProductSizeAndQuantity, ProductImage, Cart
+from merchant.serializers import GetMerchantsSerializer, CreateMerchantsSerializer, GetProductsSerializer, CreateProductsSerializer, GetCartSerializer, AddToCartSerializer
+from authentication.models import User
 from rest_framework.response import Response
 import json
 import ast
@@ -235,9 +236,46 @@ class ProductEditView(APIView):
 
 class SampleProductsView(APIView):
     permission_classes = [IsAuthenticated]
-    # get all products by user token
     def get(self,request):
         user = request.user
         queryset = Product.objects.select_related('merchant').all()
         serializer = GetProductsSerializer(queryset,context={'request': request},many=True)
         return Response({"data":serializer.data})
+    
+
+class AddToCartView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        user = request.user
+        queryset = Cart.objects.select_related('user','product').filter(user__id=request.user.id)
+        serializer = GetCartSerializer(queryset,context={'request': request},many=True)
+        return Response({"data":serializer.data})
+    
+    def post(self,request):
+        user = request.user
+        data = request.data
+        serializer = AddToCartSerializer(data=data)
+
+        if serializer.is_valid():
+            product_id = data.get("product_id",None)
+            quantity = data.get("quantity",None)
+            try:
+                product = Product.objects.get(id=product_id)
+            except Product.DoesNotExist:
+                return Response({"message": "Product not found"}, status=404)
+            
+            queryset = Cart.objects.select_related('product','user').filter(user=user, product=product).first()
+            if queryset:
+                queryset.quantity = quantity
+                queryset.save()
+            else:
+                user = User.objects.get(id=user.id)
+                queryset = Cart.objects.create(user=user, product=product,quantity=quantity)
+                queryset.save()
+
+            serializer = GetCartSerializer(queryset,context={'request': request})
+            return Response({"data":serializer.data})
+        
+        else:
+            return Response(serializer.errors,status=400)
+    

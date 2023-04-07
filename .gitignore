@@ -136,3 +136,5 @@ zmmakemigrations.sh
 zrunserver.sh
 zmigrations.sh
 zubuntu.sh
+hutoh_backend.pem
+ubuntu.sh
