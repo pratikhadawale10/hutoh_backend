@@ -229,3 +229,15 @@ class ProductEditView(APIView):
             return Response({"data":serializer.data})
         else:
             return Response(serializer.errors,status=400)
+        
+
+
+
+class SampleProductsView(APIView):
+    permission_classes = [IsAuthenticated]
+    # get all products by user token
+    def get(self,request):
+        user = request.user
+        queryset = Product.objects.select_related('merchant').all()
+        serializer = GetProductsSerializer(queryset,context={'request': request},many=True)
+        return Response({"data":serializer.data})

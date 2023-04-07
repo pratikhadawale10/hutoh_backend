@@ -8,5 +8,6 @@ urlpatterns = [
     path('profile/',views.MerchantProfileView.as_view()),
     #product apis
     path('product/',views.ProductCreateView.as_view()),
+    path('sample_products/',views.SampleProductsView.as_view()),
     path('product/<uuid:id>/',views.ProductEditView.as_view()),
 ]
