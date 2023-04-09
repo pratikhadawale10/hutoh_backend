@@ -180,9 +180,6 @@ class ProductEditView(APIView):
         except Product.DoesNotExist:
             return Response({"message": "Product not found"}, status=404)
         
-        if product.merchant.user.id != user.id:
-            return Response({"message": "Unauthorized request"}, status=401)
-        
         serializer = GetProductsSerializer(product,context={'request': request})
         return Response({"data":serializer.data})
 
