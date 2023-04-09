@@ -7,7 +7,7 @@ def get_upload_path(instance, filename, doctype):
     ext = filename.split('.')[-1]
     filename = f".{ext}"
     prefix = f"{doctype}"  # Add custom prefix
-    return os.path.join("static", "address", str(instance.user.id),str(instance.hutoh_id),prefix + filename)
+    return os.path.join("static", "address", str(instance.user.id),str(instance.user.hutoh_id),prefix + filename)
 
 class Address(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
