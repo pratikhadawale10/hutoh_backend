@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from merchant.models import Merchant, Product, ProductSizeAndQuantity, ProductImage, Cart
+from merchant.models import Merchant, Product, ProductSizeAndQuantity, ProductImage, Cart, Order, OrderItem
 from merchant.serializers import GetMerchantsSerializer, CreateMerchantsSerializer, GetProductsSerializer, CreateProductsSerializer, GetCartSerializer, AddToCartSerializer
 from authentication.models import User
 from rest_framework.response import Response
-import json
-import ast
+import json, stripe, ast
 class MerchantCreateView(APIView):
     permission_classes = [IsAuthenticated]
     # give his own merchant details
@@ -278,4 +278,67 @@ class AddToCartView(APIView):
         
         else:
             return Response(serializer.errors,status=400)
+
+
+
+
+class PlaceOrderView(APIView):
+    def post(self, request, format=None):
+        # Get the user making the request
+        user = request.user
+
+        # Get the items in the user's cart
+        cart_items = Cart.objects.filter(user=user)
+
+        # Calculate the total cost of the order
+        total_amount = 0
+        for cart_item in cart_items:
+            total_amount += cart_item.quantity * cart_item.product.price
+
+        # Create the Stripe payment
+        try:
+            payment_intent = stripe.PaymentIntent.create(
+                amount=int(total_amount * 100),
+                currency='usd',
+                payment_method_types=['card'],
+                metadata={'user_id': user.id}
+            )
+        except stripe.error.CardError as e:
+            # Handle payment failure
+            body = e.json_body
+            err = body.get('error', {})
+            return Response({'error': err.get('message')}, status=status.HTTP_400_BAD_REQUEST)
+        except stripe.error.RateLimitError as e:
+            # Handle rate limiting
+            return Response({'error': 'Too many requests. Please try again later.'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        except stripe.error.InvalidRequestError as e:
+            # Handle invalid request
+            return Response({'error': 'Invalid parameters.'}, status=status.HTTP_400_BAD_REQUEST)
+        except stripe.error.AuthenticationError as e:
+            # Handle authentication error
+            return Response({'error': 'Authentication failed.'}, status=status.HTTP_401_UNAUTHORIZED)
+        except stripe.error.APIConnectionError as e:
+            # Handle API connection error
+            return Response({'error': 'Network error. Please try again later.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        except stripe.error.StripeError as e:
+            # Handle other Stripe errors
+            return Response({'error': 'Payment failed. Please try again later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Create the order
+        order = Order.objects.create(user=user, payment_id=payment_intent.id, payment_amount=total_amount,payment_status="Completed")
+        order.save()
+
+        # Create the order items
+        for cart_item in cart_items:
+            order_item = OrderItem(product=cart_item.product, quantity=cart_item.quantity)
+            order_item.save()
+            order.order_items.add(order_item)
+
+        # Clear the user's cart
+        cart_items.delete()
+
+        # Serialize the order data and return it to the user
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     

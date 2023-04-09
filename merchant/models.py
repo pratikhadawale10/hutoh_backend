@@ -3,6 +3,7 @@ import uuid, os
 from django.core.validators import MinValueValidator, MaxValueValidator
 from functools import partial
 from authentication.models import User
+from address.models import Address
 import uuid, os, random
 from django.utils.html import format_html
 
@@ -159,4 +160,30 @@ class Cart(models.Model):
     class Meta:
         unique_together = ('user', 'product')
 
-    
+
+
+class OrderItem(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    order_items = models.ManyToManyField(OrderItem)
+    payment_status_choices = (
+        ('Pending', 'Pending'),
+        ('Completed', 'Completed'),
+        ('Failed', 'Failed'),
+    )
+    payment_status = models.CharField(max_length=10, choices=payment_status_choices, default='Pending')
+    payment_id = models.CharField(max_length=50, null=True, blank=True)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+
+
