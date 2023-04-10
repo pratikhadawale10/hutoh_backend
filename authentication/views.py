@@ -112,11 +112,12 @@ class UserProfileView(APIView):
         data = request.data
 
         queryset = User.objects.get(id=request.user.id)
-        profile_pic = request.FILES.get('profile_pic',queryset.profile_pic, queryset.profile_pic)
+        profile_pic = request.FILES.get('profile_pic',queryset.profile_pic, None)
         first_name = data.get("first_name", queryset.first_name)
         last_name = data.get("last_name", queryset.last_name)
-
-        queryset.profile_pic = profile_pic
+        
+        if profile_pic != None:
+            queryset.profile_pic = profile_pic
         queryset.first_name = first_name
         queryset.last_name = last_name
         queryset.save()
