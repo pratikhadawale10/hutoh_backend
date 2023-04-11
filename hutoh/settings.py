@@ -1,6 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
-import os
+import os, stripe
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-9+v_ry*cju!@g=_d=i58fu($w+c1opx6@_refji9-n(e!cv$ut'
@@ -145,3 +145,8 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=43200),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=30),
 }
+
+
+STRIPE_SECRET_KEY = 'sk_test_51MvTDeSCM4e3SQjOrTIQaWuwPnGTDVMlFYjC4pytTOAEQfo53iVWsC24Q1Lv0wDeUAKow3MtOBf9h3UFrejeRrGY00uCPugLP7'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51MvTDeSCM4e3SQjOPiNouZ9cv0FoT0JIaRtoeEXodY7HmscpMiv07kOITZU1YaEGCpd4JzDdw3S3PIDWSZ3XoRFa00zShPlGSp'
+stripe.api_key = STRIPE_SECRET_KEY

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from authentication.serializers import GetUserSerializer
-from merchant.models import Merchant, Product, ProductImage, ProductSizeAndQuantity, Cart
+from merchant.models import Merchant, Product, ProductImage, ProductSizeAndQuantity, Cart, Order
 class GetMerchantsSerializer(serializers.ModelSerializer):
     user = GetUserSerializer()
     class Meta:
@@ -55,6 +55,11 @@ class AddToCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ("product_id", "quantity")
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = "__all__"
 
 
 

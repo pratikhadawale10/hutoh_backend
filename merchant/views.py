@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from merchant.models import Merchant, Product, ProductSizeAndQuantity, ProductImage, Cart, Order, OrderItem
-from merchant.serializers import GetMerchantsSerializer, CreateMerchantsSerializer, GetProductsSerializer, CreateProductsSerializer, GetCartSerializer, AddToCartSerializer
+from address.models import Address
+from merchant.serializers import GetMerchantsSerializer, CreateMerchantsSerializer, GetProductsSerializer, CreateProductsSerializer, GetCartSerializer, AddToCartSerializer, OrderSerializer
 from authentication.models import User
 from rest_framework.response import Response
 import json, stripe, ast
@@ -298,7 +299,15 @@ class PlaceOrderView(APIView):
                 amount=int(total_amount * 100),
                 currency='usd',
                 payment_method_types=['card'],
-                metadata={'user_id': user.id}
+                metadata={'user_id': user.id},
+                payment_method_data={
+                    'card': {
+                        'number': '4242424242424242',
+                        'exp_month': 12,
+                        'exp_year': 2025,
+                        'cvc': '123'
+                    }
+                }
             )
         except stripe.error.CardError as e:
             # Handle payment failure
@@ -321,8 +330,9 @@ class PlaceOrderView(APIView):
             # Handle other Stripe errors
             return Response({'error': 'Payment failed. Please try again later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        address = Address.objects.get(address_id="H4538877")
         # Create the order
-        order = Order.objects.create(user=user, payment_id=payment_intent.id, payment_amount=total_amount,payment_status="Completed")
+        order = Order.objects.create(user=user, payment_id=payment_intent.id, payment_amount=total_amount,payment_status="Completed",address=address)
         order.save()
 
         # Create the order items
@@ -330,9 +340,10 @@ class PlaceOrderView(APIView):
             order_item = OrderItem(product=cart_item.product, quantity=cart_item.quantity)
             order_item.save()
             order.order_items.add(order_item)
+            order.save()
 
         # Clear the user's cart
-        cart_items.delete()
+        # cart_items.delete()
 
         # Serialize the order data and return it to the user
         serializer = OrderSerializer(order)

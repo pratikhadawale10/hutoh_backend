@@ -1,5 +1,5 @@
 from django.contrib import admin
-from merchant.models import Merchant, ProductSizeAndQuantity, Product, ProductImage, Cart
+from merchant.models import Merchant, ProductSizeAndQuantity, Product, ProductImage, Cart, Order, OrderItem
 from django.utils.html import format_html
 from django.conf import settings
 
@@ -188,9 +188,17 @@ class CartAdmin(admin.ModelAdmin):
 class ProductSizeAndQuantityAdmin(admin.ModelAdmin):
     list_display = [field.name for field in ProductSizeAndQuantity._meta.fields if field.name not in []]
 
+class OrderAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in Order._meta.fields if field.name not in []]
+
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in OrderItem._meta.fields if field.name not in []]
+
 
 admin.site.register(Merchant, MerchantAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductSizeAndQuantity, ProductSizeAndQuantityAdmin)
 admin.site.register(Cart, CartAdmin)
 admin.site.register(ProductImage, ProductImageAdmin)
+admin.site.register(Order, OrderAdmin)
+admin.site.register(OrderItem, OrderItemAdmin)

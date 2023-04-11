@@ -14,4 +14,9 @@ urlpatterns = [
 
     #cart
     path('product/cart/',views.AddToCartView.as_view()),
+
+
+
+    path('order/',views.PlaceOrderView.as_view()),
+
 ]
