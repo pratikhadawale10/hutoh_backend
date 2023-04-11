@@ -32,8 +32,8 @@ class AddressCreateView(APIView):
                 location_type = data.get("location_type",None),
                 house_type = data.get("house_type",None),
                 floor = data.get("floor",None),
-                # latitude = data.get("latitude",None),
-                # longitude = data.get("longitude",None),
+                latitude = data.get("latitude",None),
+                longitude = data.get("longitude",None),
 
                 address_line_1 = data.get("address_line_1",None),
                 address_line_2 = data.get("address_line_2",None),
