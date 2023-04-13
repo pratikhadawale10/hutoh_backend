@@ -171,10 +171,8 @@ class ProductCreateView(APIView):
 
 
 class ProductEditView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def get(self,request,id):
-        user = request.user
 
         try:
             product = Product.objects.get(id=id)
@@ -184,58 +182,56 @@ class ProductEditView(APIView):
         serializer = GetProductsSerializer(product,context={'request': request})
         return Response({"data":serializer.data})
 
-    def put(self, request, id):
-        user = request.user
-        data = request.data
-        try:
-            product = Product.objects.get(id=id)
-        except Product.DoesNotExist:
-            return Response({"message": "Product not found"}, status=404)
+    # def put(self, request, id):
+    #     user = request.user
+    #     data = request.data
+    #     try:
+    #         product = Product.objects.get(id=id)
+    #     except Product.DoesNotExist:
+    #         return Response({"message": "Product not found"}, status=404)
         
-        if product.merchant.user.id != user.id:
-            return Response({"message": "Unauthorized request"}, status=401)
+    #     if product.merchant.user.id != user.id:
+    #         return Response({"message": "Unauthorized request"}, status=401)
 
-        serializer = CreateProductsSerializer(product, data=data, partial=True)
+    #     serializer = CreateProductsSerializer(product, data=data, partial=True)
         
-        if serializer.is_valid():
-            try:
-                merchant = Merchant.objects.get(user__id=user.id)
-                if merchant.is_verified == False:
-                    return Response({"message":"Merchant is not verified"})
-            except:
-                return Response({"message":"Merchant does not exist"})
+    #     if serializer.is_valid():
+    #         try:
+    #             merchant = Merchant.objects.get(user__id=user.id)
+    #             if merchant.is_verified == False:
+    #                 return Response({"message":"Merchant is not verified"})
+    #         except:
+    #             return Response({"message":"Merchant does not exist"})
 
-            product.product_type = data.get("product_type", product.product_type)
-            product.name = data.get("name", product.name)
-            product.description = data.get("description", product.description)
-            product.price = data.get("price", product.price)
-            product.color = data.get("color", product.color)
-            product.stock = data.get("stock", product.stock)
+    #         product.product_type = data.get("product_type", product.product_type)
+    #         product.name = data.get("name", product.name)
+    #         product.description = data.get("description", product.description)
+    #         product.price = data.get("price", product.price)
+    #         product.color = data.get("color", product.color)
+    #         product.stock = data.get("stock", product.stock)
 
-            images = [ProductImage.objects.create(image=image) for image in request.FILES.getlist('images')]
-            product.images.set(images)
+    #         images = [ProductImage.objects.create(image=image) for image in request.FILES.getlist('images')]
+    #         product.images.set(images)
 
-            product.size_and_quantity.clear()
-            for size_and_quantity in  ast.literal_eval(json.loads(json.dumps(data.get("size_and_quantity",None)))):
-                product_size_and_quantity = ProductSizeAndQuantity.objects.get_or_create(
-                    size = size_and_quantity["size"],
-                    quantity = size_and_quantity["quantity"],
-                )
-                product.size_and_quantity.add(product_size_and_quantity[0])
-            product.save()
+    #         product.size_and_quantity.clear()
+    #         for size_and_quantity in  ast.literal_eval(json.loads(json.dumps(data.get("size_and_quantity",None)))):
+    #             product_size_and_quantity = ProductSizeAndQuantity.objects.get_or_create(
+    #                 size = size_and_quantity["size"],
+    #                 quantity = size_and_quantity["quantity"],
+    #             )
+    #             product.size_and_quantity.add(product_size_and_quantity[0])
+    #         product.save()
 
-            serializer = GetProductsSerializer(product,context={'request': request})
-            return Response({"data":serializer.data})
-        else:
-            return Response(serializer.errors,status=400)
+    #         serializer = GetProductsSerializer(product,context={'request': request})
+    #         return Response({"data":serializer.data})
+    #     else:
+    #         return Response(serializer.errors,status=400)
         
 
 
 
 class SampleProductsView(APIView):
-    permission_classes = [IsAuthenticated]
     def get(self,request):
-        user = request.user
         queryset = Product.objects.select_related('merchant').all()
         serializer = GetProductsSerializer(queryset,context={'request': request},many=True)
         return Response({"data":serializer.data})
